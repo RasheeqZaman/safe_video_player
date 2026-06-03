@@ -1,0 +1,10 @@
+export 'src/interfaces/video_identifiable.dart';
+export 'src/multi_video_controller.dart';
+export 'src/video_controller.dart';
+export 'src/video_widget.dart';
+export 'src/widgets/play_pause_button_widget.dart';
+export 'src/widgets/video_back_button.dart';
+export 'src/widgets/video_mute_button_widget.dart';
+export 'src/widgets/video_slider_widget.dart';
+export 'src/widgets/video_player_widget.dart';
+export 'src/widgets/multi_video_player_widget.dart';
