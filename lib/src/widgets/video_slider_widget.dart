@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:safe_video_player/safe_video_player.dart';
+import 'package:video_player/video_player.dart';
 
 class VideoSliderWidget extends StatelessWidget {
   const VideoSliderWidget({
@@ -8,27 +9,48 @@ class VideoSliderWidget extends StatelessWidget {
     required this.controller,
   });
 
-  final VideoIdentifiable? videoModel;
-  final SafeVideoPlayerController? controller;
+  final VideoIdentifiable videoModel;
+  final SafeVideoPlayerController controller;
+
+  Widget _buildProgressIndicator() {
+    return LinearProgressIndicator(
+      color: Colors.blueAccent.withValues(alpha: 0.5),
+      backgroundColor: Colors.black,
+      minHeight: 3.0,
+      borderRadius: BorderRadius.circular(10.0),
+    );
+  }
+
+  double _getSliderValue(
+    List<DurationRange> bufferedRanges,
+    Duration currentPosition,
+    Duration totalDuration,
+  ) {
+    final double bufferedRangesEndInSec = bufferedRanges.isNotEmpty
+        ? bufferedRanges[0].end.inSeconds.toDouble()
+        : 0.0;
+    final double currentPositionInSec = currentPosition.inSeconds.toDouble();
+    final double totalDurationInSec = totalDuration.inSeconds.toDouble();
+
+    return (bufferedRangesEndInSec < currentPositionInSec)
+        ? currentPositionInSec
+        : (bufferedRangesEndInSec + 1 < totalDurationInSec)
+        ? bufferedRangesEndInSec
+        : totalDurationInSec;
+  }
 
   @override
   Widget build(BuildContext context) {
-    if ((controller == null) ||
-        (!controller!.isVideoInitialized ||
-            (videoModel == null || !(videoModel?.isReadyToPlay ?? false)) ||
-            controller!.isBuffering)) {
-      return LinearProgressIndicator(
-        color: Colors.blueAccent.withValues(alpha: 0.5),
-        backgroundColor: Colors.black,
-        minHeight: 3.0,
-        borderRadius: BorderRadius.circular(10.0),
-      );
+    if (videoModel.hasPlaybackError ||
+        controller.hasError ||
+        controller.currentPosition == null) {
+      return SizedBox.shrink();
     }
 
-    if ((videoModel?.hasPlaybackError ??
-            false || (controller?.hasError ?? false)) ||
-        controller!.currentPosition == null) {
-      return SizedBox.shrink();
+    if (!controller.isVideoInitialized ||
+        !videoModel.isReadyToPlay ||
+        controller.isBuffering) {
+      return _buildProgressIndicator();
     }
 
     return Stack(
@@ -44,16 +66,12 @@ class VideoSliderWidget extends StatelessWidget {
           child: Slider(
             activeColor: Colors.black.withValues(alpha: 0.8),
             inactiveColor: Colors.white10,
-            value:
-                (controller!.bufferedRanges.isEmpty ||
-                    controller!.bufferedRanges[0].end.inSeconds <
-                        controller!.currentPosition!.inSeconds)
-                ? controller!.currentPosition!.inSeconds.toDouble()
-                : (controller!.bufferedRanges[0].end.inSeconds + 1 <
-                      controller!.totalDuration.inSeconds)
-                ? controller!.bufferedRanges[0].end.inSeconds.toDouble()
-                : controller!.totalDuration.inSeconds.toDouble(),
-            max: controller!.totalDuration.inSeconds.toDouble(),
+            value: _getSliderValue(
+              controller.bufferedRanges,
+              controller.currentPosition!,
+              controller.totalDuration,
+            ),
+            max: controller.totalDuration.inSeconds.toDouble(),
             onChanged: (_) {},
           ),
         ),
@@ -68,8 +86,8 @@ class VideoSliderWidget extends StatelessWidget {
           child: Slider(
             activeColor: Colors.blueAccent.withValues(alpha: 0.7),
             inactiveColor: Colors.white10,
-            value: controller!.currentPosition!.inSeconds.toDouble(),
-            max: controller!.totalDuration.inSeconds.toDouble(),
+            value: controller.currentPosition!.inSeconds.toDouble(),
+            max: controller.totalDuration.inSeconds.toDouble(),
             onChanged: (_) {},
           ),
         ),

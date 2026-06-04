@@ -205,10 +205,11 @@ class _MultiVideoPlayerWidgetState<T extends VideoIdentifiable>
                                   ],
                                 ),
                               ),
-                              VideoSliderWidget(
-                                videoModel: videoModel,
-                                controller: videoController,
-                              ),
+                              if (videoController != null)
+                                VideoSliderWidget(
+                                  videoModel: videoModel,
+                                  controller: videoController,
+                                ),
                             ],
                           ),
                           if (widget.overlayBuilder != null)
