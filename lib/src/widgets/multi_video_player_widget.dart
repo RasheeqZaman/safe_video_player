@@ -146,6 +146,20 @@ class _MultiVideoPlayerWidgetState<T extends VideoIdentifiable>
                                       },
                                       onChangePlayerValue: _onChangePlayerValue,
                                       onInitVideo: () {
+                                        widget.multiVideoPlayerController
+                                            .preCache(
+                                              index,
+                                              totalVideos:
+                                                  widget.videoModels.length,
+                                              getVideoModel: (index) =>
+                                                  (index < 0 ||
+                                                      index >=
+                                                          widget
+                                                              .videoModels
+                                                              .length)
+                                                  ? null
+                                                  : widget.videoModels[index],
+                                            );
                                         widget.onInitVideoScreen?.call(index);
                                       },
                                       onSwipeLeft: () {
