@@ -26,6 +26,8 @@ class MultiVideoPlayerWidget<T extends VideoIdentifiable>
     this.onPageChange,
     this.onSwipeRight,
     this.isLocalThumbnail = false,
+    this.backButtonBuilder,
+    this.muteButtonBuilder,
   });
 
   final int initialVideoIndex;
@@ -37,8 +39,10 @@ class MultiVideoPlayerWidget<T extends VideoIdentifiable>
   final void Function(int index)? onInitVideoScreen;
   final Future<void> Function(int index)? onSwipeRight;
   final bool isLocalThumbnail;
-  final Widget Function(T videoModel, int index)? overlayBuilder;
   final void Function(int index)? onLongPressVideo;
+  final Widget Function(T videoModel, int index)? overlayBuilder;
+  final Widget Function(void Function() onTapBackButton)? backButtonBuilder;
+  final Widget Function(void Function() onTapMute)? muteButtonBuilder;
 
   @override
   State<MultiVideoPlayerWidget<T>> createState() =>
@@ -231,17 +235,20 @@ class _MultiVideoPlayerWidgetState<T extends VideoIdentifiable>
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  VideoBackButton(
-                    onTapBackButton: () {
-                      widget.onTapBackButton();
-                    },
-                  ),
+                  widget.backButtonBuilder?.call(widget.onTapBackButton) ??
+                      VideoBackButton(
+                        onTapBackButton: () {
+                          widget.onTapBackButton();
+                        },
+                      ),
                   Spacer(),
-                  VideoMuteButtonWidget(
-                    isMuted:
-                        widget.multiVideoPlayerController.isMutedFocusedVideo,
-                    onTapMute: _onTapMute,
-                  ),
+                  widget.muteButtonBuilder?.call(_onTapMute) ??
+                      VideoMuteButtonWidget(
+                        isMuted: widget
+                            .multiVideoPlayerController
+                            .isMutedFocusedVideo,
+                        onTapMute: _onTapMute,
+                      ),
                 ],
               ),
             ),
