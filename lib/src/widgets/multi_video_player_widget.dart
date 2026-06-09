@@ -43,7 +43,8 @@ class MultiVideoPlayerWidget<T extends VideoIdentifiable>
   final void Function(int index)? onLongPressVideo;
   final Widget Function(T videoModel, int index)? overlayBuilder;
   final Widget Function(void Function() onTapBackButton)? backButtonBuilder;
-  final Widget Function(void Function() onTapMute)? muteButtonBuilder;
+  final Widget Function(bool isMuted, void Function() onTapMute)?
+  muteButtonBuilder;
   final Widget Function({
     required Widget Function() backButtonBuilder,
     required Widget Function() muteButtonBuilder,
@@ -93,43 +94,31 @@ class _MultiVideoPlayerWidgetState<T extends VideoIdentifiable>
   }
 
   Widget _buildHeader() {
+    final bool isMuted = widget.multiVideoPlayerController.isMutedFocusedVideo;
+    final Widget backButton =
+        widget.backButtonBuilder?.call(widget.onTapBackButton) ??
+        VideoBackButton(
+          onTapBackButton: () {
+            widget.onTapBackButton();
+          },
+        );
+    final Widget muteButton =
+        widget.muteButtonBuilder?.call(isMuted, _onTapMute) ??
+        VideoMuteButtonWidget(isMuted: isMuted, onTapMute: _onTapMute);
+
     return widget.headerBuilder?.call(
           backButtonBuilder: () {
-            return widget.backButtonBuilder?.call(widget.onTapBackButton) ??
-                VideoBackButton(
-                  onTapBackButton: () {
-                    widget.onTapBackButton();
-                  },
-                );
+            return backButton;
           },
           muteButtonBuilder: () {
-            return widget.muteButtonBuilder?.call(_onTapMute) ??
-                VideoMuteButtonWidget(
-                  isMuted:
-                      widget.multiVideoPlayerController.isMutedFocusedVideo,
-                  onTapMute: _onTapMute,
-                );
+            return muteButton;
           },
         ) ??
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 45.0, horizontal: 15.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              widget.backButtonBuilder?.call(widget.onTapBackButton) ??
-                  VideoBackButton(
-                    onTapBackButton: () {
-                      widget.onTapBackButton();
-                    },
-                  ),
-              Spacer(),
-              widget.muteButtonBuilder?.call(_onTapMute) ??
-                  VideoMuteButtonWidget(
-                    isMuted:
-                        widget.multiVideoPlayerController.isMutedFocusedVideo,
-                    onTapMute: _onTapMute,
-                  ),
-            ],
+            children: [backButton, Spacer(), muteButton],
           ),
         );
   }
