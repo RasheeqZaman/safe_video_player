@@ -24,11 +24,7 @@ class MultiVideoPlayerWidget<T extends VideoIdentifiable>
     this.onLongPressVideo,
     this.onInitVideoScreen,
     this.onPageChange,
-    this.onTapDelete,
-    this.onTapShare,
-    this.onTapUserProfile,
-    this.onTapOptions,
-    this.isVideoLiked,
+    this.onSwipeRight,
     this.isLocalThumbnail = false,
   });
 
@@ -39,14 +35,10 @@ class MultiVideoPlayerWidget<T extends VideoIdentifiable>
   final Future<void> Function(int previousPageIndex, int currentPageIndex)?
   onPageChange;
   final void Function(int index)? onInitVideoScreen;
-  final void Function(T)? onTapDelete;
-  final void Function(T)? onTapShare;
-  final void Function(T)? onTapOptions;
-  final Future<void> Function(int)? onTapUserProfile;
-  final bool Function(T)? isVideoLiked;
+  final Future<void> Function(int index)? onSwipeRight;
   final bool isLocalThumbnail;
   final Widget Function(T videoModel, int index)? overlayBuilder;
-  final VoidCallback? onLongPressVideo;
+  final void Function(int index)? onLongPressVideo;
 
   @override
   State<MultiVideoPlayerWidget<T>> createState() =>
@@ -140,7 +132,9 @@ class _MultiVideoPlayerWidgetState<T extends VideoIdentifiable>
                                       videoController: videoController,
                                       isLocalThumbnail: widget.isLocalThumbnail,
                                       thumbnailUrl: videoModel.thumbnailUrl,
-                                      onLongPress: widget.onLongPressVideo,
+                                      onLongPress: () {
+                                        widget.onLongPressVideo?.call(index);
+                                      },
                                       onTapPlayPause: () {
                                         _onTapPlayPause(context);
                                       },
@@ -168,11 +162,7 @@ class _MultiVideoPlayerWidgetState<T extends VideoIdentifiable>
                                         }
                                       },
                                       onSwipeRight: () async {
-                                        await widget.onTapUserProfile?.call(
-                                          index,
-                                        );
-                                        widget.multiVideoPlayerController
-                                            .playFocusedVideo();
+                                        await widget.onSwipeRight?.call(index);
                                       },
                                     ),
                                     Positioned.fill(
