@@ -28,6 +28,7 @@ class MultiVideoPlayerWidget<T extends VideoIdentifiable>
     this.isLocalThumbnail = false,
     this.backButtonBuilder,
     this.muteButtonBuilder,
+    this.headerBuilder,
   });
 
   final int initialVideoIndex;
@@ -43,6 +44,11 @@ class MultiVideoPlayerWidget<T extends VideoIdentifiable>
   final Widget Function(T videoModel, int index)? overlayBuilder;
   final Widget Function(void Function() onTapBackButton)? backButtonBuilder;
   final Widget Function(void Function() onTapMute)? muteButtonBuilder;
+  final Widget Function({
+    required Widget Function() backButtonBuilder,
+    required Widget Function() muteButtonBuilder,
+  })?
+  headerBuilder;
 
   @override
   State<MultiVideoPlayerWidget<T>> createState() =>
@@ -84,6 +90,48 @@ class _MultiVideoPlayerWidgetState<T extends VideoIdentifiable>
     _pageController?.dispose();
     widget.multiVideoPlayerController.stopFocusedVideo();
     super.dispose();
+  }
+
+  Widget _buildHeader() {
+    return widget.headerBuilder?.call(
+          backButtonBuilder: () {
+            return widget.backButtonBuilder?.call(widget.onTapBackButton) ??
+                VideoBackButton(
+                  onTapBackButton: () {
+                    widget.onTapBackButton();
+                  },
+                );
+          },
+          muteButtonBuilder: () {
+            return widget.muteButtonBuilder?.call(_onTapMute) ??
+                VideoMuteButtonWidget(
+                  isMuted:
+                      widget.multiVideoPlayerController.isMutedFocusedVideo,
+                  onTapMute: _onTapMute,
+                );
+          },
+        ) ??
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 45.0, horizontal: 15.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              widget.backButtonBuilder?.call(widget.onTapBackButton) ??
+                  VideoBackButton(
+                    onTapBackButton: () {
+                      widget.onTapBackButton();
+                    },
+                  ),
+              Spacer(),
+              widget.muteButtonBuilder?.call(_onTapMute) ??
+                  VideoMuteButtonWidget(
+                    isMuted:
+                        widget.multiVideoPlayerController.isMutedFocusedVideo,
+                    onTapMute: _onTapMute,
+                  ),
+            ],
+          ),
+        );
   }
 
   @override
@@ -226,33 +274,7 @@ class _MultiVideoPlayerWidgetState<T extends VideoIdentifiable>
                       );
               },
             ),
-          Positioned.fill(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 45.0,
-                horizontal: 15.0,
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  widget.backButtonBuilder?.call(widget.onTapBackButton) ??
-                      VideoBackButton(
-                        onTapBackButton: () {
-                          widget.onTapBackButton();
-                        },
-                      ),
-                  Spacer(),
-                  widget.muteButtonBuilder?.call(_onTapMute) ??
-                      VideoMuteButtonWidget(
-                        isMuted: widget
-                            .multiVideoPlayerController
-                            .isMutedFocusedVideo,
-                        onTapMute: _onTapMute,
-                      ),
-                ],
-              ),
-            ),
-          ),
+          Positioned.fill(child: _buildHeader()),
         ],
       ),
     );
