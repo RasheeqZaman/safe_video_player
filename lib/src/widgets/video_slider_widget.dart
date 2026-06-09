@@ -94,15 +94,14 @@ class _VideoSliderWidgetState extends State<VideoSliderWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.videoModel.hasPlaybackError ||
-        widget.controller.hasError ||
-        widget.controller.currentPosition == null) {
+    if (widget.videoModel.hasPlaybackError || widget.controller.hasError) {
       return const SizedBox.shrink();
     }
 
     if (!widget.controller.isVideoInitialized ||
         !widget.videoModel.isReadyToPlay ||
-        widget.controller.isBuffering) {
+        widget.controller.isBuffering ||
+        widget.controller.currentPosition == null) {
       return _buildLoadingBar();
     }
 
