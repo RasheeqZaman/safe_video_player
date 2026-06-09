@@ -6,10 +6,20 @@ class VideoSliderWidget extends StatefulWidget {
     super.key,
     required this.videoModel,
     required this.controller,
+    this.activeColor = Colors.white,
+    this.bufferColor,
+    this.trackColor,
+    this.thumbColor = Colors.white,
+    this.padding,
   });
 
   final VideoIdentifiable videoModel;
   final SafeVideoPlayerController controller;
+  final Color activeColor;
+  final Color? bufferColor;
+  final Color? trackColor;
+  final Color thumbColor;
+  final EdgeInsetsGeometry? padding;
 
   @override
   State<VideoSliderWidget> createState() => _VideoSliderWidgetState();
@@ -54,12 +64,21 @@ class _VideoSliderWidgetState extends State<VideoSliderWidget> {
     });
   }
 
+  Color get _bufferColor =>
+      widget.bufferColor ?? widget.activeColor.withValues(alpha: 0.3);
+
+  Color get _trackColor =>
+      widget.trackColor ?? widget.activeColor.withValues(alpha: 0.15);
+
   Widget _buildLoadingBar() {
-    return LinearProgressIndicator(
-      color: Colors.white.withValues(alpha: 0.5),
-      backgroundColor: Colors.white.withValues(alpha: 0.15),
-      minHeight: 3.0,
-      borderRadius: BorderRadius.circular(10.0),
+    return Padding(
+      padding: widget.padding ?? EdgeInsets.zero,
+      child: LinearProgressIndicator(
+        color: _bufferColor,
+        backgroundColor: _trackColor,
+        minHeight: 3.0,
+        borderRadius: BorderRadius.circular(10.0),
+      ),
     );
   }
 
@@ -90,14 +109,14 @@ class _VideoSliderWidgetState extends State<VideoSliderWidget> {
     final double max = _maxValue;
     if (max <= 0) return const SizedBox.shrink();
 
-    return Stack(
+    Widget slider = Stack(
       children: [
         // Buffer layer
         SliderTheme(
           data: _baseTheme(context),
           child: Slider(
-            activeColor: Colors.white.withValues(alpha: 0.3),
-            inactiveColor: Colors.white.withValues(alpha: 0.15),
+            activeColor: _bufferColor,
+            inactiveColor: _trackColor,
             value: _getBufferValue().clamp(0.0, max),
             max: max,
             onChanged: (_) {},
@@ -106,13 +125,13 @@ class _VideoSliderWidgetState extends State<VideoSliderWidget> {
         // Playback layer — interactive
         SliderTheme(
           data: _baseTheme(context).copyWith(
-            thumbColor: Colors.white,
+            thumbColor: widget.thumbColor,
             thumbShape: RoundSliderThumbShape(
               enabledThumbRadius: _isDragging ? 6.0 : 0.0,
             ),
           ),
           child: Slider(
-            activeColor: Colors.white,
+            activeColor: widget.activeColor,
             inactiveColor: Colors.transparent,
             value: _currentValue.clamp(0.0, max),
             max: max,
@@ -123,5 +142,10 @@ class _VideoSliderWidgetState extends State<VideoSliderWidget> {
         ),
       ],
     );
+
+    if (widget.padding != null) {
+      return Padding(padding: widget.padding!, child: slider);
+    }
+    return slider;
   }
 }
