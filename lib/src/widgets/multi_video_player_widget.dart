@@ -29,6 +29,7 @@ class MultiVideoPlayerWidget<T extends VideoIdentifiable>
     this.backButtonBuilder,
     this.muteButtonBuilder,
     this.headerBuilder,
+    this.sliderColor = Colors.red,
   });
 
   final int initialVideoIndex;
@@ -50,6 +51,7 @@ class MultiVideoPlayerWidget<T extends VideoIdentifiable>
     required Widget Function() muteButtonBuilder,
   })?
   headerBuilder;
+  final Color sliderColor;
 
   @override
   State<MultiVideoPlayerWidget<T>> createState() =>
@@ -247,14 +249,24 @@ class _MultiVideoPlayerWidgetState<T extends VideoIdentifiable>
                                         ),
                                       ),
                                     ),
+                                    if (videoController != null)
+                                      Positioned(
+                                        bottom: 0,
+                                        left: 0,
+                                        right: 0,
+                                        child: VideoSliderWidget(
+                                          videoModel: videoModel,
+                                          controller: videoController,
+                                          activeColor: widget.sliderColor,
+                                          bufferColor: widget.sliderColor.withValues(alpha: 0.5),
+                                          trackColor: Colors.white.withValues(alpha: 0.15),
+                                          thumbColor: Colors.transparent,
+                                          padding: EdgeInsets.fromLTRB(25, 15, 25, 25),
+                                        ),
+                                      ),
                                   ],
                                 ),
                               ),
-                              if (videoController != null)
-                                VideoSliderWidget(
-                                  videoModel: videoModel,
-                                  controller: videoController,
-                                ),
                             ],
                           ),
                           if (widget.overlayBuilder != null)
