@@ -20,7 +20,6 @@ class MultiVideoPlayerWidget<T extends VideoIdentifiable>
     required this.videoModels,
     required this.multiVideoPlayerController,
     required this.onTapBackButton,
-    // Hello2
     this.overlayBuilder,
     this.onLongPressVideo,
     this.onInitVideoScreen,
