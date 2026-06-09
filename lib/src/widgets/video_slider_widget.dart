@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:safe_video_player/safe_video_player.dart';
-import 'package:video_player/video_player.dart';
 
 class VideoSliderWidget extends StatefulWidget {
   const VideoSliderWidget({
@@ -21,8 +20,7 @@ class _VideoSliderWidgetState extends State<VideoSliderWidget> {
   bool _isDragging = false;
   bool _wasPlaying = false;
 
-  double get _maxValue =>
-      widget.controller.totalDuration.inSeconds.toDouble();
+  double get _maxValue => widget.controller.totalDuration.inSeconds.toDouble();
 
   double get _currentValue {
     if (_isDragging && _dragValue != null) return _dragValue!;
@@ -31,9 +29,7 @@ class _VideoSliderWidgetState extends State<VideoSliderWidget> {
 
   double _getBufferValue() {
     final buffered = widget.controller.bufferedRanges;
-    return buffered.isNotEmpty
-        ? buffered[0].end.inSeconds.toDouble()
-        : 0.0;
+    return buffered.isNotEmpty ? buffered[0].end.inSeconds.toDouble() : 0.0;
   }
 
   void _onDragStart(double value) {
@@ -50,9 +46,7 @@ class _VideoSliderWidgetState extends State<VideoSliderWidget> {
   }
 
   void _onDragEnd(double value) {
-    widget.controller.seekTo(
-      Duration(milliseconds: (value * 1000).round()),
-    );
+    widget.controller.seekTo(Duration(milliseconds: (value * 1000).round()));
     if (_wasPlaying) widget.controller.play();
     setState(() {
       _isDragging = false;
