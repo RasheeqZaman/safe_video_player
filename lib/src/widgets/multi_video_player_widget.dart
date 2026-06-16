@@ -99,7 +99,9 @@ class _MultiVideoPlayerWidgetState<T extends VideoIdentifiable>
 
   Widget _buildHeader() {
     final bool isMuted = widget.multiVideoPlayerController.isMutedFocusedVideo;
-    final int? pageIndex = _pageController?.page?.toInt();
+    final int? pageIndex = (_pageController?.hasClients ?? false)
+        ? _pageController?.page?.toInt()
+        : null;
     final T? videoModel =
         pageIndex != null && pageIndex < widget.videoModels.length
         ? widget.videoModels[pageIndex]
