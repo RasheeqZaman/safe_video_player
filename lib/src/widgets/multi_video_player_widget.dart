@@ -47,6 +47,8 @@ class MultiVideoPlayerWidget<T extends VideoIdentifiable>
   final Widget Function(bool isMuted, void Function() onTapMute)?
   muteButtonBuilder;
   final Widget Function({
+    int? index,
+    T? videoModel,
     required Widget Function() backButtonBuilder,
     required Widget Function() muteButtonBuilder,
   })?
@@ -97,6 +99,11 @@ class _MultiVideoPlayerWidgetState<T extends VideoIdentifiable>
 
   Widget _buildHeader() {
     final bool isMuted = widget.multiVideoPlayerController.isMutedFocusedVideo;
+    final int? pageIndex = _pageController?.page?.toInt();
+    final T? videoModel =
+        pageIndex != null && pageIndex < widget.videoModels.length
+        ? widget.videoModels[pageIndex]
+        : null;
     final Widget backButton =
         widget.backButtonBuilder?.call(widget.onTapBackButton) ??
         VideoBackButton(
@@ -109,6 +116,8 @@ class _MultiVideoPlayerWidgetState<T extends VideoIdentifiable>
         VideoMuteButtonWidget(isMuted: isMuted, onTapMute: _onTapMute);
 
     return widget.headerBuilder?.call(
+          index: pageIndex,
+          videoModel: videoModel,
           backButtonBuilder: () {
             return backButton;
           },
@@ -258,10 +267,18 @@ class _MultiVideoPlayerWidgetState<T extends VideoIdentifiable>
                                           videoModel: videoModel,
                                           controller: videoController,
                                           activeColor: widget.sliderColor,
-                                          bufferColor: widget.sliderColor.withValues(alpha: 0.5),
-                                          trackColor: Colors.white.withValues(alpha: 0.15),
+                                          bufferColor: widget.sliderColor
+                                              .withValues(alpha: 0.5),
+                                          trackColor: Colors.white.withValues(
+                                            alpha: 0.15,
+                                          ),
                                           thumbColor: Colors.transparent,
-                                          padding: EdgeInsets.fromLTRB(25, 15, 25, 25),
+                                          padding: EdgeInsets.fromLTRB(
+                                            25,
+                                            15,
+                                            25,
+                                            25,
+                                          ),
                                         ),
                                       ),
                                   ],
