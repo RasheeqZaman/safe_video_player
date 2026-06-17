@@ -91,6 +91,11 @@ class SafeMultiVideoPlayerController<T extends VideoIdentifiable> {
     if (_isRunning) _focusedVideoController?.play();
   }
 
+  void pauseFocusedVideo() async {
+    await _videoCompleters[_focusedVideoController]?.future;
+    if (_isRunning) _focusedVideoController?.pause();
+  }
+
   void onChangePage(int index, List<T> videoModels) async {
     if (index < 0 || index >= videoModels.length) {
       return;
